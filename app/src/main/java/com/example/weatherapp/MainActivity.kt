@@ -21,15 +21,14 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Основной LinearLayout
         mainLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_HORIZONTAL
-            setBackgroundColor(Color.parseColor("#E3F2FD")) // нежно-голубой фон
+            setBackgroundColor(Color.parseColor("#E3F2FD"))
             setPadding(40)
         }
 
-        // Индикатор загрузки
+
         loadingIndicator = ProgressBar(this).apply {
             isIndeterminate = true
             visibility = View.VISIBLE
@@ -66,7 +65,6 @@ class MainActivity : ComponentActivity() {
     private fun showWeather(data: com.example.weatherapp.network.WeatherResponse) {
         mainLayout.removeAllViews()
 
-        // Текущая погода
         val title = TextView(this).apply {
             text = "Погода в ${data.location.name}"
             textSize = 22f
@@ -82,7 +80,6 @@ class MainActivity : ComponentActivity() {
             gravity = Gravity.CENTER
         }
 
-        // Почасовой прогноз
         val hoursLabel = TextView(this).apply {
             text = "\nПочасовой прогноз:"
             textSize = 18f
@@ -114,7 +111,6 @@ class MainActivity : ComponentActivity() {
         }
         scroll.addView(hourlyLayout)
 
-        // Прогноз на 3 дня
         val forecastLabel = TextView(this).apply {
             text = "\nПрогноз на 3 дня:"
             textSize = 18f

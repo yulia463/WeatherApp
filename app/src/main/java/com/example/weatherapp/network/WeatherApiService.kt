@@ -5,7 +5,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-// --- Модель ответа (упрощённая для теста)
+
 data class WeatherResponse(
     val location: Location,
     val current: Current,
@@ -48,7 +48,6 @@ data class Hour(
 )
 
 
-// --- API интерфейс
 interface WeatherApiService {
     @GET("forecast.json")
     suspend fun getForecast(
@@ -58,7 +57,7 @@ interface WeatherApiService {
     ): WeatherResponse
 }
 
-// --- Retrofit instance
+
 object RetrofitClient {
     private const val BASE_URL = "https://api.weatherapi.com/v1/"
 
