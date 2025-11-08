@@ -1,6 +1,8 @@
 package com.example.weatherapp
 
 import android.graphics.Color
+import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
@@ -12,6 +14,7 @@ import com.example.weatherapp.network.RetrofitClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.math.roundToInt
 
 class MainActivity : ComponentActivity() {
 
@@ -67,24 +70,51 @@ class MainActivity : ComponentActivity() {
 
         val title = TextView(this).apply {
             text = "Погода в ${data.location.name}"
-            textSize = 22f
+            textSize = 26f
+            setTypeface(typeface, Typeface.BOLD)
             setTextColor(Color.parseColor("#0D47A1"))
             gravity = Gravity.CENTER
-            setPadding(0, 40, 0, 20)
+            setPadding(0, 80, 0, 50)
         }
 
-        val current = TextView(this).apply {
-            text = "${data.current.temp_c}°C, ${data.current.condition.text}"
-            textSize = 18f
-            setTextColor(Color.parseColor("#01579B"))
+        val roundedTemp = data.current.temp_c.roundToInt()
+        val currentLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
+            val size = 350
+            val params = LinearLayout.LayoutParams(size, size)
+            params.setMargins(0, 40, 0, 40)
+            layoutParams = params
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(Color.parseColor("#BBDEFB"))
+            }
         }
+
+        val tempText = TextView(this).apply {
+            text = "$roundedTemp°C"
+            textSize = 32f
+            setTypeface(typeface, Typeface.BOLD)
+            gravity = Gravity.CENTER
+            setTextColor(Color.parseColor("#01579B"))
+        }
+
+        val condText = TextView(this).apply {
+            text = data.current.condition.text
+            textSize = 18f
+            gravity = Gravity.CENTER
+            setTextColor(Color.parseColor("#01579B"))
+        }
+
+        currentLayout.addView(tempText)
+        currentLayout.addView(condText)
 
         val hoursLabel = TextView(this).apply {
             text = "\nПочасовой прогноз:"
             textSize = 18f
+            setTypeface(typeface, Typeface.BOLD)
             setTextColor(Color.parseColor("#0D47A1"))
-            setPadding(0, 40, 0, 10)
+            setPadding(0, 60, 0, 20)
         }
 
         val scroll = HorizontalScrollView(this)
@@ -92,15 +122,19 @@ class MainActivity : ComponentActivity() {
             orientation = LinearLayout.HORIZONTAL
         }
 
-        val hours = data.forecast.forecastday[0].hour.take(8)
+        val hours = data.forecast.forecastday[0].hour.filter {
+            val hour = it.time.substringAfter(" ").substringBefore(":").toInt()
+            hour in 0..23
+        }
         hours.forEach { hour ->
             val item = LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
                 gravity = Gravity.CENTER
-                setPadding(20)
+                setPadding(25)
             }
+
             val time = hour.time.substringAfter(' ')
-            val temp = hour.temp_c
+            val temp = hour.temp_c.roundToInt()
             val label = TextView(this).apply {
                 text = "$time\n${temp}°C"
                 gravity = Gravity.CENTER
@@ -114,8 +148,9 @@ class MainActivity : ComponentActivity() {
         val forecastLabel = TextView(this).apply {
             text = "\nПрогноз на 3 дня:"
             textSize = 18f
+            setTypeface(typeface, Typeface.BOLD)
             setTextColor(Color.parseColor("#0D47A1"))
-            setPadding(0, 40, 0, 20)
+            setPadding(0, 60, 0, 20)
         }
 
         val forecastLayout = LinearLayout(this).apply {
@@ -125,29 +160,60 @@ class MainActivity : ComponentActivity() {
         data.forecast.forecastday.forEach { day ->
             val card = LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
-                setPadding(30)
+                setPadding(50, 50, 50, 50)
                 setBackgroundColor(Color.parseColor("#BBDEFB"))
                 val params = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
                 )
-                params.setMargins(0, 10, 0, 10)
+                params.setMargins(0, 20, 0, 20)
                 layoutParams = params
+                background = GradientDrawable().apply {
+                    cornerRadius = 40f
+                    setColor(Color.parseColor("#BBDEFB"))
+                }
             }
-
-            val text = TextView(this).apply {
-                text = "${day.date}: ${day.day.avgtemp_c}°C, ${day.day.condition.text}"
-                textSize = 16f
+            val dateText = TextView(this).apply {
+                text = day.date
+                textSize = 18f
+                setTypeface(typeface, Typeface.BOLD)
                 setTextColor(Color.parseColor("#0D47A1"))
             }
 
-            card.addView(text)
-            forecastLayout.addView(card)
-        }
+            val detailsLayout = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                visibility = View.GONE
+                setPadding(0, 20, 0, 0)
+            }
+            val tempText = TextView(this).apply {
+                text = "${day.day.avgtemp_c.roundToInt()}°C"
+                textSize = 16f
+                setTextColor(Color.parseColor("#01579B"))
+            }
 
+            val conditionText = TextView(this).apply {
+                text = day.day.condition.text
+                textSize = 16f
+                setTextColor(Color.parseColor("#01579B"))
+            }
+
+            detailsLayout.addView(tempText)
+            detailsLayout.addView(conditionText)
+
+            card.addView(dateText)
+            card.addView(detailsLayout)
+
+            card.setOnClickListener {
+                detailsLayout.visibility =
+                    if (detailsLayout.visibility == View.GONE) View.VISIBLE else View.GONE
+            }
+
+            forecastLayout.addView(card)
+
+        }
         mainLayout.apply {
             addView(title)
-            addView(current)
+            addView(currentLayout)
             addView(hoursLabel)
             addView(scroll)
             addView(forecastLabel)
