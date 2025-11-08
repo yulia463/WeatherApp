@@ -31,13 +31,31 @@ class MainActivity : ComponentActivity() {
             setPadding(40)
         }
 
+        val loaderContainer = FrameLayout(this).apply {
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+            )
+        }
 
         loadingIndicator = ProgressBar(this).apply {
             isIndeterminate = true
             visibility = View.VISIBLE
+
+            val params = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                Gravity.CENTER
+            )
+            layoutParams = params
+            indeterminateDrawable.setColorFilter(
+                Color.parseColor("#0D47A1"),
+                android.graphics.PorterDuff.Mode.SRC_IN
+            )
         }
 
-        mainLayout.addView(loadingIndicator)
+        loaderContainer.addView(loadingIndicator)
+        mainLayout.addView(loaderContainer)
         setContentView(mainLayout)
 
         loadWeather()
@@ -158,10 +176,10 @@ class MainActivity : ComponentActivity() {
         }
 
         data.forecast.forecastday.forEach { day ->
+
             val card = LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
                 setPadding(50, 50, 50, 50)
-                setBackgroundColor(Color.parseColor("#BBDEFB"))
                 val params = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
@@ -173,12 +191,36 @@ class MainActivity : ComponentActivity() {
                     setColor(Color.parseColor("#BBDEFB"))
                 }
             }
+
+            val headerLayout = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                setPadding(0, 0, 0, 0)
+            }
+
             val dateText = TextView(this).apply {
                 text = day.date
                 textSize = 18f
                 setTypeface(typeface, Typeface.BOLD)
                 setTextColor(Color.parseColor("#0D47A1"))
+                val params =
+                    LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                layoutParams = params
             }
+
+            val arrowIcon = ImageView(this).apply {
+                setImageResource(android.R.drawable.arrow_down_float)
+                setColorFilter(Color.parseColor("#0D47A1"))
+                val params = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+                params.setMargins(0, 0, 20, 0)
+                layoutParams = params
+            }
+
+            headerLayout.addView(dateText)
+            headerLayout.addView(arrowIcon)
 
             val detailsLayout = LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
@@ -200,12 +242,16 @@ class MainActivity : ComponentActivity() {
             detailsLayout.addView(tempText)
             detailsLayout.addView(conditionText)
 
-            card.addView(dateText)
+            card.addView(headerLayout)
             card.addView(detailsLayout)
 
-            card.setOnClickListener {
-                detailsLayout.visibility =
-                    if (detailsLayout.visibility == View.GONE) View.VISIBLE else View.GONE
+            headerLayout.setOnClickListener {
+                val isExpanded = detailsLayout.visibility == View.VISIBLE
+                detailsLayout.visibility = if (isExpanded) View.GONE else View.VISIBLE
+                arrowIcon.setImageResource(
+                    if (isExpanded) android.R.drawable.arrow_down_float
+                    else android.R.drawable.arrow_up_float
+                )
             }
 
             forecastLayout.addView(card)

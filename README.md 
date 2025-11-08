@@ -1,0 +1,60 @@
+## 🚀 How to Run
+
+1. Clone this repository or copy project files:
+   ```bash
+   git clone https://github.com/<your_username>/WeatherApp.git
+Open the project in Android Studio
+
+2. Make sure you have an Android Emulator or connected device running
+
+3. Build and run the app:
+
+4. In the toolbar, click ▶ Run 'app'
+
+---
+
+# 🌦 WeatherApp
+
+Interactive Android application for viewing the current weather and a multi-day forecast.
+**Author:** Yulia Slatvitskaya
+
+📎 **GitHub:** [https://github.com/yulia463/WeatherApp](https://github.com/yulia463)
+
+---
+
+## ⚙️ Technologies
+
+- **Kotlin**
+- **Retrofit + GsonConverterFactory** – HTTP networking
+- **Coroutines (lifecycleScope)** – asynchronous background operations
+- **WeatherAPI.com** – data source
+- **Android View API** – programmatic UI layout
+- **Dynamic Layouts (LinearLayout, FrameLayout, ScrollView)**
+
+---
+
+## 🚀 Features
+
+- Fetches weather data by coordinates (default: Moscow)
+- Displays:
+  - Current temperature and condition
+  - Hourly forecast
+  - 3-day forecast with collapsible cards
+- Centered blue loading indicator (custom color matching the app theme)
+- Error dialog with a retry option when data fails to load
+
+---
+
+## 💡 How It Works
+
+1. When launched, a **centered blue loading spinner** is displayed.
+2. The app requests weather data using `RetrofitClient`.
+3. Once data is received:
+   - Current weather information is shown
+   - Hourly forecast appears in a horizontal scroll view
+   - 3-day forecast is displayed in collapsible cards
+4. If an error occurs, a dialog appears allowing the user to retry.
+
+--
+
+
